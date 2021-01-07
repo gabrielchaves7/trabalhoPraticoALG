@@ -8,17 +8,30 @@ using namespace std;
 const int temperaturaInicial = -90;
 const int limiteTemperatura = -60;
 
-void leEntradaCds(int quantidadeCentrosDeDistribuicao, vector<int> &arrayCD)
+void leEntradaPrincipal(int &quantidadeCentrosDeDistribuicao, int &quantidadePontosDeVacinacao, int &perdaTemperatura)
+{
+  string temp;
+  getline(cin, temp);
+  vector<string> result;
+  istringstream iss(temp);
+  for (string s; iss >> s;)
+    result.push_back(s);
+
+  quantidadeCentrosDeDistribuicao = stoi(result.at(0));
+  quantidadePontosDeVacinacao = stoi(result.at(1));
+  perdaTemperatura = stoi(result.at(2));
+}
+
+void leEntradaCds(int quantidadeCentrosDeDistribuicao, vector<int> &listaPvsIniciais)
 {
   string line;
   for (int i = 0; i < quantidadeCentrosDeDistribuicao; i++)
   {
+
     getline(cin, line);
     istringstream iss(line);
     for (string s; iss >> s;)
-    {
-      arrayCD.push_back(stoi(s));
-    }
+      listaPvsIniciais.push_back(stoi(s));
   }
 }
 
@@ -36,51 +49,18 @@ void leEntradaPvs(int quantidadePontosDeVacinacao, vector<vector<int>> &arrayPV)
   }
 }
 
-void imprimirResultado(int rotaComPostoDuplicado, vector<int> &listaPvsAlcancados){
-    cout<<"\n";
-    cout<<"Resultado";
-    cout<<"\n";    
-    cout<<listaPvsAlcancados.size();
-    cout<<"\n";
-    sort(listaPvsAlcancados.begin(), listaPvsAlcancados.end()); 
-    for (unsigned i = 0; i < listaPvsAlcancados.size(); i++)
-    {
-      int pv = listaPvsAlcancados.at(i);
-      cout << pv << ' ';
-    }
-    cout<<"\n";
-    cout<<rotaComPostoDuplicado;
-    cout<<"\n";
-}
-
-void realizaLogistica(int inicio, int rotaComPostoDuplicado, vector<int> &listaPvsAnteriores, vector<int> &listaPvsAlcancados, vector<vector<int>> arrayPV, int temperaturaAtual, int perdaTemperatura)
+void preencherProximasCamadas(int pvAtual, vector<vector<int>> arrayPV, int camadaAtual, vector<vector<int>> &camadas)
 {
-  temperaturaAtual = temperaturaAtual + perdaTemperatura;
-  if (temperaturaAtual >= limiteTemperatura){
-    imprimirResultado(rotaComPostoDuplicado, listaPvsAlcancados);
+  vector<int> proximosPVS = arrayPV.at(pvAtual - 1);
+
+  if (camadaAtual == (camadas.size()) || (proximosPVS.at(0) == 0))
     return;
-  }
 
-  int qtdPvsJaAlcancados = listaPvsAlcancados.size();
-  for (int i = inicio; i < qtdPvsJaAlcancados; i++)
+  for (int i = 0; i < proximosPVS.size(); i++)
   {
-    int pvAtual = listaPvsAlcancados.at(i);
-    int quantidadePvsAlcancaveis = arrayPV[pvAtual - 1].size();
-    for (int k = 0; k < quantidadePvsAlcancaveis; k++)
-    {
-      int novoPvAlcancado = arrayPV[pvAtual - 1].at(k);
-
-      if (find(listaPvsAnteriores.begin(), listaPvsAnteriores.end(), novoPvAlcancado) != listaPvsAnteriores.end())
-        rotaComPostoDuplicado = rotaComPostoDuplicado + 1;
-
-      if (find(listaPvsAlcancados.begin(), listaPvsAlcancados.end(), novoPvAlcancado) == listaPvsAlcancados.end())
-        listaPvsAlcancados.push_back(novoPvAlcancado);
-    }
+    camadas.at(camadaAtual).push_back(proximosPVS.at(i));
+    preencherProximasCamadas(proximosPVS.at(i), arrayPV, camadaAtual + 1, camadas);
   }
-
-  listaPvsAnteriores = listaPvsAlcancados;
-
-  return realizaLogistica(qtdPvsJaAlcancados, rotaComPostoDuplicado, listaPvsAlcancados, listaPvsAlcancados, arrayPV, temperaturaAtual, perdaTemperatura);
 }
 
 int main()
@@ -88,24 +68,42 @@ int main()
   int quantidadeCentrosDeDistribuicao;
   int quantidadePontosDeVacinacao;
   int perdaTemperatura;
-
-  string temp;
-  getline(cin, temp);
-  vector<string> result;
-  istringstream iss(temp);
-  for (string s; iss >> s;)
-    result.push_back(s);
-
-  quantidadeCentrosDeDistribuicao = stoi(result.at(0));
-  quantidadePontosDeVacinacao = stoi(result.at(1));
-  perdaTemperatura = stoi(result.at(2));
-
-  vector<int> listaPvsAlcancados;
+  vector<int> listaPvsIniciais;
   vector<vector<int>> arrayPV;
-  leEntradaCds(quantidadeCentrosDeDistribuicao, listaPvsAlcancados);
-  vector<int> listaPvsAnteriores = listaPvsAlcancados;
+
+  leEntradaPrincipal(quantidadeCentrosDeDistribuicao, quantidadePontosDeVacinacao, perdaTemperatura);
+  leEntradaCds(quantidadeCentrosDeDistribuicao, listaPvsIniciais);
   leEntradaPvs(quantidadePontosDeVacinacao, arrayPV);
-  realizaLogistica(0, 0, listaPvsAnteriores, listaPvsAlcancados, arrayPV, temperaturaInicial, perdaTemperatura);
+
+  //int numeroCamadas = abs(((temperaturaInicial - limiteTemperatura) / perdaTemperatura));
+  int numeroCamadas = 3;
+
+  vector<vector<vector<int>>> lista;
+  for (int i = 0; i < listaPvsIniciais.size(); i++)
+  {
+    vector<vector<int>> camadas(numeroCamadas - 1, vector<int>());
+    preencherProximasCamadas(listaPvsIniciais.at(i), arrayPV, 0, camadas);
+    lista.push_back(camadas);
+  }
+
+  cout << "Testando resultado\n";
+  for (int j = 0; j < lista.size(); j++)
+  {
+    vector<vector<int>> camadas = lista.at(j);
+    vector<int> temp;
+    temp.push_back(listaPvsIniciais.at(j));
+    camadas.insert(camadas.begin(), temp);
+    for (int i = 0; i < camadas.size(); i++)
+    {
+      cout << "[";
+      for (int k = 0; k < camadas.at(i).size(); k++)
+      {        
+        cout << camadas.at(i).at(k) << " ";
+      }
+      cout << "]";
+    }
+    cout << "\n";
+  }
   system("pause");
   return 0;
 }
