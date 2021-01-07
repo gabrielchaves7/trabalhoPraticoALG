@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <list>
+#include <algorithm>
 using namespace std;
 const int temperaturaInicial = -90;
 const int limiteTemperatura = -60;
@@ -35,11 +36,30 @@ void leEntradaPvs(int quantidadePontosDeVacinacao, vector<vector<int>> &arrayPV)
   }
 }
 
-void realizaLogistica(int inicio, vector<int> &listaPvsAlcancados, vector<vector<int>> arrayPV, int temperaturaAtual, int perdaTemperatura)
+void imprimirResultado(int rotaComPostoDuplicado, vector<int> &listaPvsAlcancados){
+    cout<<"\n";
+    cout<<"Resultado";
+    cout<<"\n";    
+    cout<<listaPvsAlcancados.size();
+    cout<<"\n";
+    sort(listaPvsAlcancados.begin(), listaPvsAlcancados.end()); 
+    for (unsigned i = 0; i < listaPvsAlcancados.size(); i++)
+    {
+      int pv = listaPvsAlcancados.at(i);
+      cout << pv << ' ';
+    }
+    cout<<"\n";
+    cout<<rotaComPostoDuplicado;
+    cout<<"\n";
+}
+
+void realizaLogistica(int inicio, int rotaComPostoDuplicado, vector<int> &listaPvsAnteriores, vector<int> &listaPvsAlcancados, vector<vector<int>> arrayPV, int temperaturaAtual, int perdaTemperatura)
 {
   temperaturaAtual = temperaturaAtual + perdaTemperatura;
-  if (temperaturaAtual >= limiteTemperatura)
+  if (temperaturaAtual >= limiteTemperatura){
+    imprimirResultado(rotaComPostoDuplicado, listaPvsAlcancados);
     return;
+  }
 
   int qtdPvsJaAlcancados = listaPvsAlcancados.size();
   for (int i = inicio; i < qtdPvsJaAlcancados; i++)
@@ -48,11 +68,19 @@ void realizaLogistica(int inicio, vector<int> &listaPvsAlcancados, vector<vector
     int quantidadePvsAlcancaveis = arrayPV[pvAtual - 1].size();
     for (int k = 0; k < quantidadePvsAlcancaveis; k++)
     {
-      listaPvsAlcancados.push_back(arrayPV[pvAtual - 1].at(k));
+      int novoPvAlcancado = arrayPV[pvAtual - 1].at(k);
+
+      if (find(listaPvsAnteriores.begin(), listaPvsAnteriores.end(), novoPvAlcancado) != listaPvsAnteriores.end())
+        rotaComPostoDuplicado = rotaComPostoDuplicado + 1;
+
+      if (find(listaPvsAlcancados.begin(), listaPvsAlcancados.end(), novoPvAlcancado) == listaPvsAlcancados.end())
+        listaPvsAlcancados.push_back(novoPvAlcancado);
     }
   }
 
-  return realizaLogistica(qtdPvsJaAlcancados, listaPvsAlcancados, arrayPV, temperaturaAtual, perdaTemperatura);
+  listaPvsAnteriores = listaPvsAlcancados;
+
+  return realizaLogistica(qtdPvsJaAlcancados, rotaComPostoDuplicado, listaPvsAlcancados, listaPvsAlcancados, arrayPV, temperaturaAtual, perdaTemperatura);
 }
 
 int main()
@@ -75,15 +103,9 @@ int main()
   vector<int> listaPvsAlcancados;
   vector<vector<int>> arrayPV;
   leEntradaCds(quantidadeCentrosDeDistribuicao, listaPvsAlcancados);
+  vector<int> listaPvsAnteriores = listaPvsAlcancados;
   leEntradaPvs(quantidadePontosDeVacinacao, arrayPV);
-  realizaLogistica(0, listaPvsAlcancados, arrayPV, temperaturaInicial, perdaTemperatura);
-
-  for (unsigned i = 0; i < listaPvsAlcancados.size(); i++)
-  {
-    int teste = listaPvsAlcancados.at(i);
-    cout << ' ' << teste;
-  }
-
+  realizaLogistica(0, 0, listaPvsAnteriores, listaPvsAlcancados, arrayPV, temperaturaInicial, perdaTemperatura);
   system("pause");
   return 0;
 }
