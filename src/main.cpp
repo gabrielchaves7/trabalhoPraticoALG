@@ -53,10 +53,12 @@ void preencherProximasCamadas(int pvAtual, vector<vector<int>> arrayPV, int cama
 {
   vector<int> proximosPVS = arrayPV.at(pvAtual - 1);
 
-  if (camadaAtual == (camadas.size()) || (proximosPVS.at(0) == 0))
+  int camadasSize = camadas.size();
+  int proximosPVSSize = proximosPVS.size();
+  if (camadaAtual == camadasSize || (proximosPVS.at(0) == 0))
     return;
 
-  for (int i = 0; i < proximosPVS.size(); i++)
+  for (int i = 0; i < proximosPVSSize; i++)
   {
     camadas.at(camadaAtual).push_back(proximosPVS.at(i));
     preencherProximasCamadas(proximosPVS.at(i), arrayPV, camadaAtual + 1, camadas);
@@ -76,17 +78,20 @@ bool hasDuplicates(const std::vector<int> &arr)
   return false;
 }
 
-void preencherResultado(vector<vector<vector<int>>> listaCamadas, vector<int> listaPvsIniciais, vector<int> &postosAlcancados, int &numeroDeRotasComMesmoPV)
+void preencherResultado(vector<vector<vector<int>>> listaCamadas, vector<int> &postosAlcancados, int &numeroDeRotasComMesmoPV)
 {
-  for (int i = 0; i < listaCamadas.size(); i++)
+  int listaCamadasSize = listaCamadas.size();
+  for (int i = 0; i < listaCamadasSize; i++)
   {
     vector<vector<int>> camadaAtual = listaCamadas.at(i);
 
+    int camadaAtualSize = camadaAtual.size();
     vector<int> postosCamadaAtual;
-    for (int j = 0; j < camadaAtual.size(); j++)
+    for (int j = 0; j < camadaAtualSize; j++)
     {
       vector<int> vetorPostos = camadaAtual.at(j);
-      for (int k = 0; k < vetorPostos.size(); k++)
+      int vetorPostosSize = vetorPostos.size();
+      for (int k = 0; k < vetorPostosSize; k++)
       {
         int postoAtual = vetorPostos.at(k);
 
@@ -104,18 +109,25 @@ void preencherResultado(vector<vector<vector<int>>> listaCamadas, vector<int> li
 
 void imprimeResultado(vector<int> postosAlcancados, int numeroDeRotasComMesmoPV)
 {
-  cout << "\n \n Testando resultado PARTE 2\n";
-  cout << postosAlcancados.size() << " //Quantidade de postos alcancados \n";
+  cout << postosAlcancados.size() << "\n";
   sort(postosAlcancados.begin(), postosAlcancados.end());
-  for (int i = 0; i < postosAlcancados.size(); i++)
+  int postosAlcancadosSize = postosAlcancados.size();
+  if (postosAlcancadosSize < 0)
   {
-    cout << postosAlcancados.at(i) << " ";
+    for (int i = 0; i < postosAlcancadosSize; i++)
+    {
+      cout << postosAlcancados.at(i) << " ";
+    }
   }
-  cout << " // Postos alcancados \n";
-  cout << numeroDeRotasComMesmoPV << "// duplicados \n";
+  else
+  {
+    cout << "*";
+  }
+
+  cout << "\n" << numeroDeRotasComMesmoPV << "\n";
 }
 
-void imprimeModeloDeCamadas(vector<vector<vector<int>>> listaCamadas, vector<int> listaPvsIniciais)
+/* void imprimeModeloDeCamadas(vector<vector<vector<int>>> listaCamadas)
 {
   cout << "Testando resultado\n";
   for (int j = 0; j < listaCamadas.size(); j++)
@@ -133,7 +145,7 @@ void imprimeModeloDeCamadas(vector<vector<vector<int>>> listaCamadas, vector<int
     cout << "\n";
   }
 }
-
+ */
 int main()
 {
   int quantidadeCentrosDeDistribuicao;
@@ -149,9 +161,12 @@ int main()
   int numeroCamadas = abs(((temperaturaInicial - limiteTemperatura) / perdaTemperatura));
 
   vector<vector<vector<int>>> listaCamadas;
-  for (int i = 0; i < listaPvsIniciais.size(); i++)
+  int listaPvsIniciaisSize = listaPvsIniciais.size();
+  for (int i = 0; i < listaPvsIniciaisSize; i++)
   {
-    cout << "PV Atual: " << listaPvsIniciais.at(i);
+    if (numeroCamadas < 1)
+      break;
+
     vector<vector<int>> camadas(numeroCamadas - 1, vector<int>());
     preencherProximasCamadas(listaPvsIniciais.at(i), arrayPV, 0, camadas);
 
@@ -163,7 +178,7 @@ int main()
 
   vector<int> postosAlcancados;
   int numeroDeRotasComMesmoPV = 0;
-  preencherResultado(listaCamadas, listaPvsIniciais, postosAlcancados, numeroDeRotasComMesmoPV);
+  preencherResultado(listaCamadas, postosAlcancados, numeroDeRotasComMesmoPV);
   //imprimeModeloDeCamadas(listaCamadas, listaPvsIniciais);
   imprimeResultado(postosAlcancados, numeroDeRotasComMesmoPV);
   system("pause");

@@ -8,10 +8,10 @@
 # 	VAR=conteudo
 # e eh chamada atraves do comando $(VAR)
 
-CC=gcc # compilador, troque para gcc se preferir utilizar C
+CC=g++ # compilador, troque para gcc se preferir utilizar C
 CFLAGS=-Wall -Wextra # compiler flags, troque o que quiser, exceto bibliotecas externas
-EXEC=./tp2 # nome do executavel que sera gerado, nao troque
-TMPOUT=tp2.testresult
+EXEC=./tp01 # nome do executavel que sera gerado, nao troque
+TMPOUT=tp01.testresult
 
 # === REGRAS =====
 # ================
@@ -35,8 +35,8 @@ TMPOUT=tp2.testresult
 # CMD sao os comandos necessarios para executar a regra (por exemplo, chamar o
 # gcc)
 
-$(EXEC): main.c
-	$(CC) $(CFLAGS) main.c -o $(EXEC)
+$(EXEC): main.cpp
+	$(CC) $(CFLAGS) main.cpp -o $(EXEC)
 
 clean: # remove todos os arquivos temporarios que forem gerados pela compilacao
 	rm -rf foo.o
