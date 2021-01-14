@@ -81,9 +81,6 @@ void preencherResultado(vector<vector<vector<int>>> listaCamadas, vector<int> li
   for (int i = 0; i < listaCamadas.size(); i++)
   {
     vector<vector<int>> camadaAtual = listaCamadas.at(i);
-    vector<int> temp;
-    temp.push_back(listaPvsIniciais.at(i));
-    camadaAtual.insert(camadaAtual.begin(), temp);
 
     vector<int> postosCamadaAtual;
     for (int j = 0; j < camadaAtual.size(); j++)
@@ -124,9 +121,6 @@ void imprimeModeloDeCamadas(vector<vector<vector<int>>> listaCamadas, vector<int
   for (int j = 0; j < listaCamadas.size(); j++)
   {
     vector<vector<int>> camadas = listaCamadas.at(j);
-    vector<int> temp;
-    temp.push_back(listaPvsIniciais.at(j));
-    camadas.insert(camadas.begin(), temp);
     for (int i = 0; i < camadas.size(); i++)
     {
       cout << "[";
@@ -157,14 +151,20 @@ int main()
   vector<vector<vector<int>>> listaCamadas;
   for (int i = 0; i < listaPvsIniciais.size(); i++)
   {
+    cout << "PV Atual: " << listaPvsIniciais.at(i);
     vector<vector<int>> camadas(numeroCamadas - 1, vector<int>());
     preencherProximasCamadas(listaPvsIniciais.at(i), arrayPV, 0, camadas);
+
+    vector<int> temp;
+    temp.push_back(listaPvsIniciais.at(i));
+    camadas.insert(camadas.begin(), temp);
     listaCamadas.push_back(camadas);
   }
 
   vector<int> postosAlcancados;
   int numeroDeRotasComMesmoPV = 0;
   preencherResultado(listaCamadas, listaPvsIniciais, postosAlcancados, numeroDeRotasComMesmoPV);
+  //imprimeModeloDeCamadas(listaCamadas, listaPvsIniciais);
   imprimeResultado(postosAlcancados, numeroDeRotasComMesmoPV);
   system("pause");
   return 0;
