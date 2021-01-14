@@ -109,10 +109,11 @@ void preencherResultado(vector<vector<vector<int>>> listaCamadas, vector<int> &p
 
 void imprimeResultado(vector<int> postosAlcancados, int numeroDeRotasComMesmoPV)
 {
+  cout << "RESULTADO: \n";
   cout << postosAlcancados.size() << "\n";
   sort(postosAlcancados.begin(), postosAlcancados.end());
   int postosAlcancadosSize = postosAlcancados.size();
-  if (postosAlcancadosSize < 0)
+  if (postosAlcancadosSize > 0)
   {
     for (int i = 0; i < postosAlcancadosSize; i++)
     {
