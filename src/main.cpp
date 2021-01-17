@@ -8,7 +8,7 @@ using namespace std;
 const int temperaturaInicial = -90;
 const int limiteTemperatura = -60;
 
-void leEntradaPrincipal(int &quantidadeCentrosDeDistribuicao, int &quantidadePontosDeVacinacao, int &perdaTemperatura)
+void leEntradaPrincipal(int &quantidadeCds, int &quantidadePvs, int &perdaTemperatura)
 {
   string temp;
   getline(cin, temp);
@@ -17,15 +17,15 @@ void leEntradaPrincipal(int &quantidadeCentrosDeDistribuicao, int &quantidadePon
   for (string s; iss >> s;)
     result.push_back(s);
 
-  quantidadeCentrosDeDistribuicao = stoi(result.at(0));
-  quantidadePontosDeVacinacao = stoi(result.at(1));
+  quantidadeCds = stoi(result.at(0));
+  quantidadePvs = stoi(result.at(1));
   perdaTemperatura = stoi(result.at(2));
 }
 
-void leEntradaCds(int quantidadeCentrosDeDistribuicao, vector<int> &listaPvsIniciais)
+void leEntradaCds(int quantidadeCds, vector<int> &listaPvsIniciais)
 {
   string line;
-  for (int i = 0; i < quantidadeCentrosDeDistribuicao; i++)
+  for (int i = 0; i < quantidadeCds; i++)
   {
 
     getline(cin, line);
@@ -35,10 +35,10 @@ void leEntradaCds(int quantidadeCentrosDeDistribuicao, vector<int> &listaPvsInic
   }
 }
 
-void leEntradaPvs(int quantidadePontosDeVacinacao, vector<vector<int>> &arrayPV)
+void leEntradaPvs(int quantidadePvs, vector<vector<int>> &arrayPV)
 {
   string line;
-  for (int i = 0; i < quantidadePontosDeVacinacao; i++)
+  for (int i = 0; i < quantidadePvs; i++)
   {
     getline(cin, line);
     istringstream iss(line);
@@ -49,7 +49,7 @@ void leEntradaPvs(int quantidadePontosDeVacinacao, vector<vector<int>> &arrayPV)
   }
 }
 
-void preencherProximasCamadas(int pvAtual, vector<vector<int>> arrayPV, int camadaAtual, vector<vector<int>> &camadas)
+void preencheCamadas(int pvAtual, vector<vector<int>> arrayPV, int camadaAtual, vector<vector<int>> &camadas)
 {
   vector<int> proximosPVS = arrayPV.at(pvAtual - 1);
 
@@ -61,7 +61,7 @@ void preencherProximasCamadas(int pvAtual, vector<vector<int>> arrayPV, int cama
   for (int i = 0; i < proximosPVSSize; i++)
   {
     camadas.at(camadaAtual).push_back(proximosPVS.at(i));
-    preencherProximasCamadas(proximosPVS.at(i), arrayPV, camadaAtual + 1, camadas);
+    preencheCamadas(proximosPVS.at(i), arrayPV, camadaAtual + 1, camadas);
   }
 }
 
@@ -78,31 +78,31 @@ bool hasDuplicates(const std::vector<int> &arr)
   return false;
 }
 
-void preencherResultado(vector<vector<vector<int>>> listaCamadas, vector<int> &postosAlcancados, int &numeroDeRotasComMesmoPV)
+void preencherResultado(vector<vector<vector<int>>> arrayCamadas, vector<int> &postosAlcancados, int &numeroDeRotasComMesmoPV)
 {
-  int listaCamadasSize = listaCamadas.size();
-  for (int i = 0; i < listaCamadasSize; i++)
+  int arrayCamadasSize = arrayCamadas.size();
+  for (int i = 0; i < arrayCamadasSize; i++)
   {
-    vector<vector<int>> camadaAtual = listaCamadas.at(i);
+    vector<vector<int>> camadaAtual = arrayCamadas.at(i);
 
     int camadaAtualSize = camadaAtual.size();
-    vector<int> postosCamadaAtual;
+    vector<int> pvsCamadaAtual;
     for (int j = 0; j < camadaAtualSize; j++)
     {
-      vector<int> vetorPostos = camadaAtual.at(j);
-      int vetorPostosSize = vetorPostos.size();
-      for (int k = 0; k < vetorPostosSize; k++)
+      vector<int> arrayPvs = camadaAtual.at(j);
+      int arrayPvsSize = arrayPvs.size();
+      for (int k = 0; k < arrayPvsSize; k++)
       {
-        int postoAtual = vetorPostos.at(k);
+        int pvAtual = arrayPvs.at(k);
 
-        postosCamadaAtual.push_back(postoAtual);
+        pvsCamadaAtual.push_back(pvAtual);
 
-        if (!count(postosAlcancados.begin(), postosAlcancados.end(), postoAtual))
-          postosAlcancados.push_back(postoAtual);
+        if (!count(postosAlcancados.begin(), postosAlcancados.end(), pvAtual))
+          postosAlcancados.push_back(pvAtual);
       }
     }
 
-    if (hasDuplicates(postosCamadaAtual))
+    if (hasDuplicates(pvsCamadaAtual))
       numeroDeRotasComMesmoPV = numeroDeRotasComMesmoPV + 1;
   }
 }
@@ -149,15 +149,15 @@ void imprimeResultado(vector<int> postosAlcancados, int numeroDeRotasComMesmoPV)
  */
 int main()
 {
-  int quantidadeCentrosDeDistribuicao;
-  int quantidadePontosDeVacinacao;
+  int quantidadeCds;
+  int quantidadePvs;
   int perdaTemperatura;
   vector<int> listaPvsIniciais;
   vector<vector<int>> arrayPV;
 
-  leEntradaPrincipal(quantidadeCentrosDeDistribuicao, quantidadePontosDeVacinacao, perdaTemperatura);
-  leEntradaCds(quantidadeCentrosDeDistribuicao, listaPvsIniciais);
-  leEntradaPvs(quantidadePontosDeVacinacao, arrayPV);
+  leEntradaPrincipal(quantidadeCds, quantidadePvs, perdaTemperatura);
+  leEntradaCds(quantidadeCds, listaPvsIniciais);
+  leEntradaPvs(quantidadePvs, arrayPV);
 
   int numeroCamadas = abs(((temperaturaInicial - limiteTemperatura) / perdaTemperatura));
 
@@ -169,7 +169,7 @@ int main()
       break;
 
     vector<vector<int>> camadas(numeroCamadas - 1, vector<int>());
-    preencherProximasCamadas(listaPvsIniciais.at(i), arrayPV, 0, camadas);
+    preencheCamadas(listaPvsIniciais.at(i), arrayPV, 0, camadas);
 
     vector<int> temp;
     temp.push_back(listaPvsIniciais.at(i));
@@ -177,11 +177,11 @@ int main()
     listaCamadas.push_back(camadas);
   }
 
-  vector<int> postosAlcancados;
+  vector<int> pvsAlcancados;
   int numeroDeRotasComMesmoPV = 0;
-  preencherResultado(listaCamadas, postosAlcancados, numeroDeRotasComMesmoPV);
+  preencherResultado(listaCamadas, pvsAlcancados, numeroDeRotasComMesmoPV);
   //imprimeModeloDeCamadas(listaCamadas, listaPvsIniciais);
-  imprimeResultado(postosAlcancados, numeroDeRotasComMesmoPV);
+  imprimeResultado(pvsAlcancados, numeroDeRotasComMesmoPV);
   system("pause");
   return 0;
 }
