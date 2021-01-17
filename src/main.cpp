@@ -1,9 +1,8 @@
 #include <iostream>
 #include <vector>
-#include <string>
 #include <sstream>
-#include <list>
 #include <algorithm>
+
 using namespace std;
 const int temperaturaInicial = -90;
 const int limiteTemperatura = -60;
@@ -17,6 +16,7 @@ void leEntradaPrincipal(int &quantidadeCds, int &quantidadePvs, int &perdaTemper
   for (string s; iss >> s;)
     result.push_back(s);
 
+  //stoi converte string pra inteiro
   quantidadeCds = stoi(result.at(0));
   quantidadePvs = stoi(result.at(1));
   perdaTemperatura = stoi(result.at(2));
@@ -58,6 +58,19 @@ void preencheCamadas(int pvAtual, vector<vector<int>> arrayPV, int camadaAtual, 
   if (camadaAtual == camadasSize || (proximosPVS.at(0) == 0))
     return;
 
+  /*   A ideia aqui é para cada pv inicial, criar uma camada com as possíveis rotas, buscando todos os possíveis caminhos e inserindo eles em um array.
+    Para o primeiro exemplo presente na documentação, onde temos o c1 que vai para o PV1 e PV2, 
+    primeiro eu verifico todos os postos de vacinação que podemos chegar a partir do PV1 sem que 
+    isso ultrapasse o limite de temperatura e vou inserindo isso no meu modelo de camadas.    
+
+    Por exemplo, para o PV1, a variável camadas fica da seguinte forma: [[1], [16]]. O que significa que como primeira opção, temos o PV1, e como segunda opção o PV16. 
+    Caso a camada fosse [[1], [2,3]], significaria que como primeira opção temos o PV1, e como segunda opção para a nossa rota o PV2 ou o PV3.
+    Se quiserem verificar como está o modelo de camadas, têm uma função comentada imprimeModeloCamadas.
+
+    Para verificar se já chegamos no limite de temperatura, eu só preciso checar se a
+    (camadaAtual == camadasSize) pois o tamanho do vetor camadas é definido na 
+    função main baseado no limite de temperatura e na perda após cada PV.*/
+
   for (int i = 0; i < proximosPVSSize; i++)
   {
     camadas.at(camadaAtual).push_back(proximosPVS.at(i));
@@ -67,6 +80,7 @@ void preencheCamadas(int pvAtual, vector<vector<int>> arrayPV, int camadaAtual, 
 
 bool hasDuplicates(const std::vector<int> &arr)
 {
+  // a ideia aqui é verificar se existe PVS duplicados em uma mesma camada, o que significaria que o caminhão poderia passar mesmo posto de vacinação na mesma rota.
   for (std::size_t i = 0; i < arr.size(); ++i)
   {
     for (std::size_t j = i + 1; j < arr.size(); ++j)
@@ -80,6 +94,8 @@ bool hasDuplicates(const std::vector<int> &arr)
 
 void preencherResultado(vector<vector<vector<int>>> arrayCamadas, vector<int> &postosAlcancados, int &numeroDeRotasComMesmoPV)
 {
+  /* Como eu utilizei uma estrutura de dados com três arrays, eu preciso de 3 for, para percorrer o meu array de resultados, 
+  o que cria uma complexidade n³ apenas para a impressão do meu resultado. Na minha visão esta foi a parte mais negativa do meu algoritmo.  */
   int arrayCamadasSize = arrayCamadas.size();
   for (int i = 0; i < arrayCamadasSize; i++)
   {
@@ -125,7 +141,8 @@ void imprimeResultado(vector<int> postosAlcancados, int numeroDeRotasComMesmoPV)
     cout << "*";
   }
 
-  cout << "\n" << numeroDeRotasComMesmoPV << "\n";
+  cout << "\n"
+       << numeroDeRotasComMesmoPV << "\n";
 }
 
 /* void imprimeModeloDeCamadas(vector<vector<vector<int>>> listaCamadas)
@@ -145,8 +162,8 @@ void imprimeResultado(vector<int> postosAlcancados, int numeroDeRotasComMesmoPV)
     }
     cout << "\n";
   }
-}
- */
+} */
+
 int main()
 {
   int quantidadeCds;
@@ -169,6 +186,7 @@ int main()
       break;
 
     vector<vector<int>> camadas(numeroCamadas - 1, vector<int>());
+    /* Para cada PV Inicial eu crio uma camada e depois coloco isso em um vetor. Veja os comentários da função preencheCamadas que está com mais detalhes. */
     preencheCamadas(listaPvsIniciais.at(i), arrayPV, 0, camadas);
 
     vector<int> temp;
@@ -180,7 +198,7 @@ int main()
   vector<int> pvsAlcancados;
   int numeroDeRotasComMesmoPV = 0;
   preencherResultado(listaCamadas, pvsAlcancados, numeroDeRotasComMesmoPV);
-  //imprimeModeloDeCamadas(listaCamadas, listaPvsIniciais);
+  /* imprimeModeloDeCamadas(listaCamadas); */
   imprimeResultado(pvsAlcancados, numeroDeRotasComMesmoPV);
   system("pause");
   return 0;
